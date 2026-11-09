@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Постер — отбор на чемпионат «Профессионалы»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #6f757a; }
+  :root {
+    --green: #0F9346;
+    --green-lite: #4ECC0A;
+    --yellow: #FCEE73;
+    --grey: #BDC6CB;
+    --dark: #364046;
+    --white: #FFFFFF;
+  }
+
+  .poster {
+    position: relative;
+    width: 1080px; height: 1350px;
+    overflow: hidden;
+    font-family: 'Roboto', Arial, sans-serif;
+    color: var(--white);
+    isolation: isolate;
+  }
+
+  /* ---------- Фон: снимок антенны во весь постер ----------
+     Исходник assets/background.jpg — 4928x3280 (альбомный).
+     Постер 1080x1350 (книжный): cover масштабирует по высоте, поэтому
+     по горизонтали видно лишь 53% кадра. Смещение 64% ставит антенну
+     в правую часть (примерно x 560–960), оставляя левую под текст. */
+  .poster > .bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 64% 50%;
+    z-index: 0;
+  }
+
+  /* ---------- Общее затемнение: лёгкое ----------
+     Задача — не гасить фотографию, а лишь приглушить её,
+     чтобы белый логотип и подвал читались. */
+  .poster > .scrim {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(to bottom,
+        rgba(6,12,9,.50) 0%,
+        rgba(6,12,9,.10) 16%,
+        rgba(6,12,9,0) 34%),
+      linear-gradient(to top,
+        rgba(6,12,9,.55) 0%,
+        rgba(6,12,9,.22) 9%,
+        rgba(6,12,9,0) 24%);
+  }
+
+  /* ---------- Полоса логотипов ---------- */
+  .topbar {
+    position: absolute; z-index: 5;
+    top: 0; left: 0; right: 0;
+    height: 190px;
+    padding: 0 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(6,12,9,.55), rgba(6,12,9,0));
+    border-bottom: 3px solid var(--green-lite);
+  }
+  .topbar .champ-wrap {
+    position: relative;
+    height: 116px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.55));
+  }
+  .topbar .champ { height: 116px; width: auto; display: block; }
+
+  /* Пунктирная рамка «ПОЛЕ ДЛЯ ВВОДА ГОДА» — заготовка брендбука.
+     Закрываем её фирменной плашкой с годом: в финальном знаке это
+     и есть заполненное поле. Поле занимает x 550–745, y 18–86 знака
+     1218x450, то есть 45.2–61.2% по X и 4.0–19.1% по Y. Плашка
+     берёт границы с запасом ~5 px, иначе обводка рамки торчит
+     за края зелёного прямоугольника. */
+  .topbar .champ-year {
+    position: absolute;
+    left: 44.6%; top: 3.4%;
+    width: 17.2%; height: 17.0%;
+    background: var(--green);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 900; letter-spacing: .5px;
+    color: var(--white);
+  }
+  /* ---------- Логотип колледжа ----------
+     Без подложки: чистый svg поверх фотографии. Чтобы отделить знак от
+     тёмного неба, вместо фона — только тень, и она не перекрывает фон.
+     Выравнивание задаёт слот: это и есть свободная зона в правой части
+     полотна — от текстовой колонки до правого поля (x 650…1026) и от
+     низа шапки до верха антенны (y 236…772). Логотип центрируется в ней. */
+  .college-slot {
+    position: absolute; z-index: 5;
+    left: 650px; top: 236px;
+    width: 376px; height: 536px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* Чистый svg: подложки нет, отделяет знак от неба только тень. */
+  .college-slot img {
+    height: 190px; width: auto; display: block;
+    filter: drop-shadow(0 4px 18px rgba(0,0,0,.70));
+  }
+
+  /* ---------- Заголовок ----------
+     Главное — название движения и компетенция. «Набор на чемпионат»
+     опущен до подзаголовка: раньше он занимал 76 px и был крупнее
+     всего остального, хотя по сути призыв, а не предмет. */
+  .content {
+    position: absolute; z-index: 5;
+    left: 54px; top: 250px;
+    width: 560px;
+  }
+
+  .eyebrow {
+    font-size: 20px; font-weight: 700; letter-spacing: 3.4px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(0,0,0,.85), 0 0 3px rgba(0,0,0,.55);
+  }
+  .eyebrow .dot { color: var(--yellow); margin: 0 10px; }
+
+  /* Полное название — строкой над коротким */
+  .name-line {
+    margin-top: 14px;
+    font-size: 23px; line-height: 1.2; font-weight: 500;
+    color: rgba(255,255,255,.82);
+    text-shadow: 0 2px 12px rgba(0,0,0,.80), 0 0 3px rgba(0,0,0,.45);
+  }
+
+  /* Короткое название — крупнейший блок постера, фирменным зелёным */
+  h1 {
+    margin-top: 10px;
+    font-size: 76px; line-height: 1.0; font-weight: 900;
+    letter-spacing: -1.8px;
+    color: var(--green-lite);
+    text-shadow: 0 3px 16px rgba(0,0,0,.80), 0 0 4px rgba(0,0,0,.50);
+  }
+
+  /* Подпись перед названием компетенции */
+  .sub {
+    margin-top: 16px;
+    font-size: 22px; line-height: 1.2; font-weight: 700;
+    color: rgba(255,255,255,.74);
+    text-shadow: 0 2px 10px rgba(0,0,0,.80), 0 0 3px rgba(0,0,0,.45);
+  }
+
+  /* Компетенция — второй по важности блок */
+  h2 {
+    margin-top: 8px;
+    font-size: 40px; line-height: 1.14; font-weight: 900;
+    color: var(--white);
+    letter-spacing: -.5px;
+    text-shadow: 0 3px 14px rgba(0,0,0,.80), 0 0 4px rgba(0,0,0,.50);
+  }
+
+  .rule { display: flex; align-items: center; margin: 22px 0 0; width: 430px; }
+  .rule .bar { height: 6px; flex: 1 1 auto;
+    background: linear-gradient(90deg, var(--green-lite) 0%, var(--green) 100%); }
+  .rule .arrow { width: 0; height: 0; margin-left: 2px;
+    border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+    border-left: 22px solid var(--green); }
+
+  /* ---------- Блок текста: отдельная тёмная плашка ----------
+     Ниже QR-карточки, та же левая кромка. Намеренно не на белом:
+     так код и текст читаются как два разных объекта. */
+  .textblock {
+    position: absolute; z-index: 5;
+    left: 54px; top: 996px;
+    width: 470px;
+    background: rgba(8, 16, 12, .74);
+    backdrop-filter: blur(6px);
+    border-left: 5px solid var(--green-lite);
+    border-radius: 0 18px 18px 0;
+    padding: 20px 24px 22px;
+  }
+  .textblock h3 { font-size: 25px; font-weight: 900; line-height: 1.2; color: var(--white); }
+  .textblock h3 em { font-style: normal; color: var(--green-lite); }
+  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #D3DBD8; }
+  .textblock .contact {
+    margin-top: 12px; padding-top: 11px;
+    border-top: 1px solid rgba(255,255,255,.16);
+    font-size: 18px; font-weight: 700; color: var(--yellow);
+  }
+
+  /* ---------- Блок QR: отдельная белая карточка ----------
+     Стоит сразу под зелёной стрелкой (она заканчивается на y 618)
+     и выровнен по левому краю колонки. Антенна занимает примерно
+     x 560–960, y 800–1270, карточка заканчивается на x 318 — до неё
+     более 240 px. */
+  .qrblock {
+    position: absolute; z-index: 5;
+    left: 54px; top: 692px;
+    width: 264px; height: 264px;
+    background: var(--white);
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qrblock img { width: 216px; height: 216px; display: block; }
+
+  /* ---------- Подвал ---------- */
+  .footer {
+    position: absolute; z-index: 5;
+    left: 0; right: 0; bottom: 0;
+    height: 104px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 54px;
+    justify-content: flex-start;
+    background: rgba(54, 64, 70, .86);
+    backdrop-filter: blur(3px);
+  }
+  /* «сделано в россии» остаётся один раз — в хэштеге */
+  .fright .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; color: var(--white); }
+  .accentbar {
+    position: absolute; z-index: 6;
+    left: 0; right: 0; bottom: 104px;
+    height: 8px;
+    background: linear-gradient(90deg, var(--green) 0%, var(--green-lite) 55%, var(--yellow) 100%);
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <img class="bg" src="../assets/background.jpg" alt="">
+
+  <div class="scrim"></div>
+
+  <div class="topbar">
+    <div class="champ-wrap">
+      <img class="champ" src="../assets/professionals_logo_02-1_white.png"
+           alt="Чемпионат по профессиональному мастерству «Профессионалы»">
+      <span class="champ-year">2027</span>
+    </div>
+  </div>
+
+  <div class="college-slot">
+    <img src="../assets/college_logo.svg" alt="Ставропольский колледж связи им. В.А. Петрова">
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">2027</div>
+
+    <p class="name-line">чемпионат по профессиональному мастерству</p>
+
+    <h1>Профессионалы</h1>
+
+    <p class="sub">компетенция:</p>
+
+    <h2>Программные решения<br>для бизнеса</h2>
+    <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
+  </div>
+
+  <div class="qrblock">
+    <img src="../assets/qr_repo.png" alt="QR-код на условия отбора">
+  </div>
+
+  <div class="textblock">
+    <h3><em>Задание</em> для студентов,<br>которые желают принять участие</h3>
+    <p>Отсканируйте QR-код.</p>
+    <div class="contact">Вопросы по заданию — кабинет 202л</div>
+  </div>
+
+  <div class="footer">
+    <div class="fright">
+      <div class="tag">#ПРОФЕССИОНАЛЫСДЕЛАНОВРОССИИ</div>
+    </div>
+  </div>
+  <div class="accentbar"></div>
+
+</div>
+</body>
+</html>
